@@ -1,0 +1,27 @@
+---
+- name: Install NFS client packages
+  yum:
+    name: "{{ item }}"
+    state: present
+  loop:
+    - nfs-utils
+    - rpcbind
+  notify: restart service
+
+- name: Create mount point directory
+  file:
+    path: "{{ client_share_directory_path }}"  #/share
+    state: directory
+    owner: root
+    group: root
+    mode: '2755'
+
+- name: Mount NFS share
+  redhat.rhel_system_roles.mount:
+    src: "{{ server_share_ip_path }}"
+    path: /share
+    fstype: nfs
+    dump: 0
+    passno: 2
+    opts: defaults,rw,bg
+    state: mounted
